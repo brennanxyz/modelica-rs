@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 description = "A Rust wrapper for the Modelica standard library. This is not ready. Ignore it for now."
 authors = ["Brennan Harris <brennan@brennanharris.xyz>"]
+license = "MIT"
+repository = "https://github.com/brennanxyz/modelica-rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

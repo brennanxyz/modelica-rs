@@ -18,7 +18,7 @@ pub struct ModelicaComment {
 }
 
 /// Located at the end of a declaration, equation, or statement or at the beginning of a class definition
-pub struct ModelicaDescriptionString {
+pub struct ModelicaDescription {
     pub comment: String,
 }
 

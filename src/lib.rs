@@ -22,8 +22,14 @@ pub struct ModelicaDescription {
     pub comment: String,
 }
 
+/// A combination of Modelica values, variables, and operators
+pub struct ModelicaExpression {
+    pub expression: String,
+}
+
+/// Reserved Modelica keywords
 #[allow(dead_code)]
-enum ModelicaKeyword {
+pub enum ModelicaKeyword {
     Algorithm, And, Annotation,
     Block, Break,
     Class, Connect, Connector, Constant, ConstrainedBy,
@@ -38,7 +44,7 @@ enum ModelicaKeyword {
     Package, Parameter, Partial, Protected, Public, Pure,
     Record, Redeclare, Replaceable, Return,
     Stream,
-    Then, True, Type,
+    Time, Then, True, Type,
     When, While, Within,
 }
 
@@ -98,6 +104,7 @@ fn get_keyword_str(keyword: ModelicaKeyword) -> &'static str {
         ModelicaKeyword::Replaceable => "replaceable",
         ModelicaKeyword::Return => "return",
         ModelicaKeyword::Stream => "stream",
+        ModelicaKeyword::Time => "time",
         ModelicaKeyword::Then => "then",
         ModelicaKeyword::True => "true",
         ModelicaKeyword::Type => "type",
@@ -163,6 +170,7 @@ fn get_keyword(keyword: &str) -> Option<ModelicaKeyword> {
         "replaceable" => Some(ModelicaKeyword::Replaceable),
         "return" => Some(ModelicaKeyword::Return),
         "stream" => Some(ModelicaKeyword::Stream),
+        "time" => Some(ModelicaKeyword::Time),
         "then" => Some(ModelicaKeyword::Then),
         "true" => Some(ModelicaKeyword::True),
         "type" => Some(ModelicaKeyword::Type),
@@ -173,3 +181,41 @@ fn get_keyword(keyword: &str) -> Option<ModelicaKeyword> {
     }
 }
 
+/// Reserved Modelica operators
+pub enum ModelicaOperator {
+    PostfixArrayIndex, // [] | arr[index]
+    PostfixAccess, // . |  obj.property
+    PostfixFunctionCall, // funcName (functionArguments ) | sin(4.36)
+    ArrayConstruction, // {expressions } | {2, 3}
+    HorizontalConcatenation, // [expressions ] | [5, 6]
+    VerticalConcatenation, // [expressions; expressions...] | [2, 3; 7, 8]
+    Exponentiation, // ^ | 2 ^ 3
+    Multiplicative, // * | 2 * 3
+    Divisive, // / | 2 / 3
+    ElementwiseMultiplicative, // .* | [1, 2; 3, 4] .* [2, 3; 5, 6]
+    ElementwiseDivisive, // ./ | [1, 2; 3, 4] ./ [2, 3; 5, 6]
+    Additive, // + | 1 + 2
+    Subtractive, // - | 2 - 1
+    AdditiveUnary, // + | +2
+    SubtractiveUnary, // - | -2
+    ArrayElementwiseAdditive, // .+ | [1, 2; 3, 4] .+ [2, 3; 5, 6]
+    ArrayElementwiseSubtractive, // .- | [1, 2; 3, 4] .- [2, 3; 5, 6]
+    RelationatLessThan, // < | 2 < 3
+    RelationatLessThanOrEqual, // <= | 2 <= 3
+    RelationatGreaterThan, // > | 2 > 3
+    RelationatGreaterThanOrEqual, // >= | 2 >= 3
+    RelationatEqual, // == | 2 == 3
+    RelationatNotEqual, // <> | 2 <> 3
+    UnaryNegation, // not expr | not b1
+    LogicalAnd, // and | b1 and b2
+    LogicalOr, // or | b1 or b2
+    ArrayRange, // expr : expr OR expr : expr : expr  | 1 : 5 OR start : step : stop
+    Conditional, // if expr then expr else expr | if b then 3 else x
+    NamedArgument, // ident = expr | x = 2.26
+    AbsoluteValue, // abs(expr) | abs(-2.26)
+    Sign, // sign(expr) | sign(-2.26)
+    SquareRoot, // sqrt(expr) | sqrt(2.26)
+    IntegerConvert, // Integer(e) | Integer(enum1)
+    EnumTypeName, // EnumTypeName(i) | EnumTypeName(3)
+    StringConvert, // String(..., <options>) | String(345) ; options are minimumLength, leftJustified, significantDigits
+}

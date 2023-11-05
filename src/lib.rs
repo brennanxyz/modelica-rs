@@ -3,28 +3,150 @@
 //! This crate is a wrapper for the Modelica language, used primarily for
 //! modeling physical systems. It is **not** ready for use by anyone for any reason.
 
+/// Most declared blocks in Modelica are classes
+pub trait ModelicaClass {
+    fn get_name(&self) -> String;
+}
 
-/// An element defined by the production component-clause in the Modelica grammar
-pub struct ModelicaComponent {
+/// A `package` holds a collection of Modelica entities.
+pub struct ModelicaPackage {
     pub name: String,
 }
+
+impl ModelicaClass for ModelicaPackage {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// A `type` may only be predefined types, enumerations, array of `type`, or classes extending from `type`
+pub struct ModelicaType {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaType {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// A `model` is a class that defines a set of variables that are connected to other connectors or to variables outside the model. 
+/// 
+/// A model may also contain equations, algorithm sections, and initial
+/// equations.
+pub struct ModelicaModel {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaModel {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// A `block` is a class that defines a set of variables that are connected to other connectors or to variables outside the model.
+/// 
+/// A block may also contain equations, algorithm sections, and initial
+/// equations.
+pub struct ModelicaBlock {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaBlock {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// A `connector` is a class that defines a set of variables that are connected to other connectors or to
+/// variables outside the model. 
+/// 
+/// A connector may also contain equations, algorithm sections, and initial
+/// equations.
+pub struct ModelicaConnector {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaConnector {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// A `function` is enhanced to allow the function to contain an external function interface.
+pub struct ModelicaFunction {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaFunction {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// A `record` is primarily used to group data together.
+/// 
+/// Only public sections are allowed in the definition or in any of its components 
+/// (i.e., equation, algorithm, initial equation, initial algorithm and protected 
+/// sections are not allowed). The elements of a record shall not have prefixes 
+/// input, output, inner, outer, stream, or flow. Enhanced with implicitly available 
+/// record constructor function, see section 12.6. The components directly declared 
+/// in a record may only be of specialized class record or type.
+pub struct ModelicaRecord {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaRecord {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// An `operator record` is imilar to `record`; but operator overloading is possible
+pub struct ModelicaOperatorRecord {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaOperatorRecord {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// An `operator` is similar to `package``; but may only contain declarations of functions.
+pub struct ModelicaOperatorClass {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaOperatorClass {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
+/// An `operator function` is shorthand for an operator with exactly one function
+pub struct ModelicaOperatorFunction {
+    pub name: String,
+}
+
+impl ModelicaClass for ModelicaOperatorFunction {
+    fn get_name(&self) -> String {
+        self.name.clone()
+    }
+}
+
 
 /// Content ignored by the Modelica translator
 /// 
 /// Text on a line following the // character pair is ignored by the Modelica translator.
 /// Also, text located between the character pairs /* and */ is ignored by the Modelica translator.
 pub struct ModelicaComment {
-    pub comment: String,
+    pub value: String,
 }
 
-/// Located at the end of a declaration, equation, or statement or at the beginning of a class definition
-pub struct ModelicaDescription {
-    pub comment: String,
-}
-
-/// A combination of Modelica values, variables, and operators
-pub struct ModelicaExpression {
-    pub expression: String,
+pub enum ModelicaAccessControl {
+    Public,
+    Protected,
 }
 
 /// Reserved Modelica keywords
@@ -46,6 +168,18 @@ pub enum ModelicaKeyword {
     Stream,
     Time, Then, True, Type,
     When, While, Within,
+}
+
+/// Reserved Modelica prefixes
+#[allow(dead_code)]
+pub enum ModelicaPrefix {
+    Flow,
+    Stream,
+    Discrete,
+    Parameter,
+    Constant,
+    Input,
+    Output,
 }
 
 #[allow(dead_code)]

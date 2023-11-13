@@ -11,6 +11,7 @@ repository = "https://github.com/brennanxyz/modelica-rs"
 
 [dependencies]
 serde = { version = "1.0.190", features = ["derive"]}
+regex = { version = "1.10.2" }
 
 [dev-dependencies]
 async-recursion = { version = "1.0.5" }

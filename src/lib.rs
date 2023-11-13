@@ -3,12 +3,19 @@
 //! This crate is a wrapper for the Modelica language, used primarily for
 //! modeling physical systems. It is **not** ready for use by anyone for any reason.
 
+// ANTLR is the way to go: https://github.com/rrevenantt/antlr4rust/blob/master/README.md
+// Copy this: https://github.com/urbanopt/modelica-builder/blob/develop/modelica_builder/modelica_project.py
+
+use regex::Regex;
+
 /// Most declared blocks in Modelica are classes
 pub trait ModelicaClass {
     fn get_name(&self) -> String;
+    fn extract(text_in: String) -> (Option<Self>, Option<String>) where Self: Sized;
 }
 
 /// A `package` holds a collection of Modelica entities.
+#[derive(Debug)]
 pub struct ModelicaPackage {
     pub name: String,
 }
@@ -17,6 +24,37 @@ impl ModelicaClass for ModelicaPackage {
     fn get_name(&self) -> String {
         self.name.clone()
     }
+
+    fn extract(text_in: String) -> (Option<ModelicaPackage>, Option<String>) {
+        // let package_name_pattern = Regex::new(r#"\bpackage\s(\w+)"#).unwrap();
+        let package_name_pattern = Regex::new(r#"package\s+(\w+)[.\s\S]+end\s+\1;"#).unwrap();
+        let package: Option<ModelicaPackage> = None;
+        let block_content: Option<String> = None;
+
+        let mut count = 0;
+
+        let captures = package_name_pattern.captures_iter(text_in.as_str());
+        for capture in captures {
+            println!("Found package {}", count);
+            println!("Found package: {}", capture.get(1).unwrap().as_str());
+            count += 1;
+        }
+        // println!("Found package: {}", capture.get(1).unwrap().as_str());
+
+            // package = match capture.get(1) {
+            //     Some(name) => {
+            //         let n = name.as_str();
+            //         Some(ModelicaPackage {
+            //             name: n.to_string(),
+            //         })
+            //     },
+            //     None => None,
+            // };
+
+        
+
+        (package, block_content)
+    }
 }
 
 /// A `type` may only be predefined types, enumerations, array of `type`, or classes extending from `type`
@@ -24,11 +62,11 @@ pub struct ModelicaType {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaType {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaType {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 /// A `model` is a class that defines a set of variables that are connected to other connectors or to variables outside the model. 
 /// 
@@ -38,11 +76,11 @@ pub struct ModelicaModel {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaModel {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaModel {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 /// A `block` is a class that defines a set of variables that are connected to other connectors or to variables outside the model.
 /// 
@@ -52,11 +90,11 @@ pub struct ModelicaBlock {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaBlock {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaBlock {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 /// A `connector` is a class that defines a set of variables that are connected to other connectors or to
 /// variables outside the model. 
@@ -67,22 +105,22 @@ pub struct ModelicaConnector {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaConnector {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaConnector {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 /// A `function` is enhanced to allow the function to contain an external function interface.
 pub struct ModelicaFunction {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaFunction {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaFunction {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 /// A `record` is primarily used to group data together.
 /// 
@@ -96,44 +134,44 @@ pub struct ModelicaRecord {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaRecord {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaRecord {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 /// An `operator record` is imilar to `record`; but operator overloading is possible
 pub struct ModelicaOperatorRecord {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaOperatorRecord {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaOperatorRecord {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 /// An `operator` is similar to `package``; but may only contain declarations of functions.
 pub struct ModelicaOperatorClass {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaOperatorClass {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaOperatorClass {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 /// An `operator function` is shorthand for an operator with exactly one function
 pub struct ModelicaOperatorFunction {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaOperatorFunction {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-}
+// impl ModelicaClass for ModelicaOperatorFunction {
+//     fn get_name(&self) -> String {
+//         self.name.clone()
+//     }
+// }
 
 
 /// Content ignored by the Modelica translator

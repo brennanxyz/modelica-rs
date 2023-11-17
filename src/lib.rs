@@ -6,6 +6,9 @@
 // ANTLR is the way to go: https://github.com/rrevenantt/antlr4rust/blob/master/README.md
 // Copy this: https://github.com/urbanopt/modelica-builder/blob/develop/modelica_builder/modelica_project.py
 
+// start here: https://github.com/urbanopt/modelica-builder/blob/develop/modelica_builder/modelica_parser/utils.py
+
+mod modelica_parser;
 use regex::Regex;
 
 /// Most declared blocks in Modelica are classes

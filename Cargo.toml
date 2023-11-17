@@ -10,6 +10,7 @@ repository = "https://github.com/brennanxyz/modelica-rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+antlr-rust = { version =  "0.3.0-beta" }
 serde = { version = "1.0.190", features = ["derive"]}
 regex = { version = "1.10.2" }
 

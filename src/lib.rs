@@ -8,7 +8,7 @@
 
 // start here: https://github.com/urbanopt/modelica-builder/blob/develop/modelica_builder/modelica_parser/utils.py
 
-mod modelica_parser;
+pub mod modelica_parser;
 use regex::Regex;
 
 /// Most declared blocks in Modelica are classes

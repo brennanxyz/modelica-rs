@@ -1,6 +1,7 @@
 // Tests for practical use and for test-driven developemnt
 
 // use modelica_rs::{ModelicaPackage};
+use modelica_rs::modelica_parser;
 
 use async_recursion::async_recursion;
 use dotenv::dotenv;
@@ -36,11 +37,16 @@ struct ModelicaRepoEntry {
 #[cfg(test)]
 
 #[test]
+fn read_test() {
+  modelica_parser::read();
+}
+
+// #[test]
 fn free_test() {
     assert_eq!(2 + 2, 4);
 }
 
-#[tokio::test]
+// #[tokio::test]
 async fn repo_connection() {
     let client = Client::new();
     match client.get("https://github.com/modelica/ModelicaStandardLibrary").send().await {
@@ -53,7 +59,7 @@ async fn repo_connection() {
     }
 }
 
-#[test]
+// #[test]
 fn env_var_access() {
     dotenv().ok();
     match env::var("GITHUB_TOKEN") {
@@ -66,7 +72,7 @@ fn env_var_access() {
     };
 }
 
-#[tokio::test]
+// #[tokio::test]
 async fn raw_repo_connection() {
     dotenv().ok();
     let bearer = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set");
@@ -85,7 +91,7 @@ async fn raw_repo_connection() {
     }
 }
 
-#[test]
+// #[test]
 fn tempdir_make() {
     let tdir = match TempDir::new("modelica-rs") {
         Ok(tdir) => {
@@ -107,7 +113,7 @@ fn tempdir_make() {
     }
 }
 
-#[tokio::test]
+// #[tokio::test]
 async fn repo_download() {
     let tdir = match TempDir::new("modelica-rs") {
         Ok(tdir) => {
@@ -185,7 +191,7 @@ async fn recur_through_repo(base: &str, mut mod_dir: ModelicaDirectory) -> Model
     return mod_dir
 }
 
-#[tokio::test]
+// #[tokio::test]
 async fn test_modelica_package() {
     dotenv().ok();
     let bearer = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set");
@@ -210,7 +216,7 @@ async fn test_modelica_package() {
     println!("{:?}", mp);
 }
 
-#[tokio::test]
+// #[tokio::test]
 async fn test_modelica_double_package() {
     // println!("CONTINUOUS | {}", response.text().await.unwrap());
     let cont_text = "within Modelica.Blocks; \

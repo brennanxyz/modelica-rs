@@ -1,7 +1,9 @@
 # modelica-rs
 
-A library to interact with Modelica Standard Library using Rust.
+A library to interact with the Modelica Standard Library using Rust.
+
+This package uses [rrevenantt](https://github.com/rrevenantt)'s [antlr_rust](https://crates.io/crates/antlr-rust) framework to create an ANTLR-ized Modelica parser in Rust.
 
 ### TODO
 - [ ] Declare basic Modelica elements as Rust `struct`s and `enum`s
-- [ ] Implement `serde::Serialize` and `serde::Deserialize` to read and write from Modelica files
+- [ ] Connect the ANTLR-created tokens to the Rust `struct`s and `enum`s

@@ -35,14 +35,25 @@ impl ModelicaErrorListener {
     }
 }
 
+// TODO: add properties to the listener to gather models, classes, etc.
 struct Listener {}
 
+// TODO: add to the enter and exit methods to turn on and off the listener gathering modes, capture indices, etc.
 impl<'input> ParseTreeListener<'input, modelicaparser::modelicaParserContextType> for Listener {
     fn enter_every_rule(&mut self, ctx: &dyn modelicaparser::modelicaParserContext<'input>) {
         println!(
-            "rule entered {}",
+            "rule entered: {} | {:?}",
             modelicaparser::ruleNames
                 .get(ctx.get_rule_index())
+                .unwrap_or(&"error"),
+            ctx.start(),
+        );
+    }
+
+    fn exit_every_rule(&mut self, _ctx: &<modelicaparser::modelicaParserContextType as antlr_rust::parser::ParserNodeType>::Type) {
+        println!("rule exited: {}",
+            modelicaparser::ruleNames
+                .get(_ctx.get_rule_index())
                 .unwrap_or(&"error")
         )
     }
@@ -50,8 +61,16 @@ impl<'input> ParseTreeListener<'input, modelicaparser::modelicaParserContextType
 
 impl<'input> modelicaListener<'input> for Listener {}
 
-pub fn read() {
-    let input = InputStream::new(r#"model Test end Test;"#);
+pub fn read_simplest_case() {
+    let input = InputStream::new(r#"block Integrator
+    input Real u;
+    output Real y;
+  protected
+    Real x;
+  equation
+    der(x) = u;
+    y = x;
+  end Integrator;"#);
     let mut lexer = modelicalexer::modelicaLexer::new(input);
     let token_source = CommonTokenStream::new(lexer);
     let mut parser = modelicaparser::modelicaParser::new(token_source);
@@ -62,26 +81,4 @@ pub fn read() {
     assert!(result.is_ok());
     println!("finished parsing parser_test_modelica");
     println!("result: {}", result.unwrap().to_string_tree(&*parser));
-
-    // let mut listener = modelicalistener::modelicaListener::new();
-    // antlr_rust::tree::ParseTreeWalker::DEFAULT.walk(&mut listener, &tree);
-    // println!("{:?}", listener);
-    // let mut listener = modelicalistener::modelicaListener::new();
-    // antlr_rust::tree::ParseTreeWalker::DEFAULT.walk(&mut listener, &tree);
-    // println!("{:?}", listener);
-    // let mut listener = modelicalistener::modelicaListener::new();
-    // antlr_rust::tree::ParseTreeWalker::DEFAULT.walk(&mut listener, &tree);
-    // println!("{:?}", listener);
-    // let mut listener = modelicalistener::modelicaListener::new();
-    // antlr_rust::tree::ParseTreeWalker::DEFAULT.walk(&mut listener, &tree);
-    // println!("{:?}", listener);
-    // let mut listener = modelicalistener::modelicaListener::new();
-    // antlr_rust::tree::ParseTreeWalker::DEFAULT.walk(&mut listener, &tree);
-    // println!("{:?}", listener);
-    // let mut listener = modelicalistener::modelicaListener::new();
-    // antlr_rust::tree::ParseTreeWalker::DEFAULT.walk(&mut listener, &tree);
-    // println!("{:?}", listener);
-    // let mut listener = modelicalistener::modelicaListener::new();
-    // antlr_rust::tree::ParseTreeWalker::DEFAULT.walk(&mut listener, &tree);
-    // println!("{:?}", listener);
 }

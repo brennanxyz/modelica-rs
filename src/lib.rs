@@ -42,19 +42,6 @@ impl ModelicaClass for ModelicaPackage {
             println!("Found package: {}", capture.get(1).unwrap().as_str());
             count += 1;
         }
-        // println!("Found package: {}", capture.get(1).unwrap().as_str());
-
-            // package = match capture.get(1) {
-            //     Some(name) => {
-            //         let n = name.as_str();
-            //         Some(ModelicaPackage {
-            //             name: n.to_string(),
-            //         })
-            //     },
-            //     None => None,
-            // };
-
-        
 
         (package, block_content)
     }

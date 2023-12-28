@@ -38,7 +38,7 @@ struct ModelicaRepoEntry {
 
 #[test]
 fn read_test() {
-  modelica_parser::read();
+  modelica_parser::read_simplest_case();
 }
 
 // #[test]

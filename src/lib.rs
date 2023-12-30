@@ -43,6 +43,7 @@ pub struct ModelicaBlock {
     pub connectors: Vec<ModelicaConnector>,
 }
 
+#[allow(refining_impl_trait)]
 impl ModelicaClass for ModelicaBlock {
     fn extract_class_instances(raw_data: &str) -> Vec<ModelicaBlock> {
         let mut mbs = vec![];

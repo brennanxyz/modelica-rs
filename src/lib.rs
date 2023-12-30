@@ -1,20 +1,16 @@
 //! # Wrapping the Modelica language in Rust
 //! 
 //! This crate is a wrapper for the Modelica language, used primarily for
-//! modeling physical systems. It is **not** ready for use by anyone for any reason.
-
-// ANTLR is the way to go: https://github.com/rrevenantt/antlr4rust/blob/master/README.md
-// Copy this: https://github.com/urbanopt/modelica-builder/blob/develop/modelica_builder/modelica_project.py
-
-// start here: https://github.com/urbanopt/modelica-builder/blob/develop/modelica_builder/modelica_parser/utils.py
+//! modeling physical systems. It is build on the ANTLR code parsing framework
+//! via [antlr_rust](https://github.com/rrevenantt/antlr4rust)
 
 pub mod modelica_parser;
-use regex::Regex;
+
+use crate::modelica_parser::MyListener;
 
 /// Most declared blocks in Modelica are classes
 pub trait ModelicaClass {
-    fn get_name(&self) -> String;
-    fn extract(text_in: String) -> (Option<Self>, Option<String>) where Self: Sized;
+    fn extract_class_instances(raw_data: &str) -> Vec<impl ModelicaClass>;
 }
 
 /// A `package` holds a collection of Modelica entities.
@@ -23,40 +19,10 @@ pub struct ModelicaPackage {
     pub name: String,
 }
 
-impl ModelicaClass for ModelicaPackage {
-    fn get_name(&self) -> String {
-        self.name.clone()
-    }
-
-    fn extract(text_in: String) -> (Option<ModelicaPackage>, Option<String>) {
-        // let package_name_pattern = Regex::new(r#"\bpackage\s(\w+)"#).unwrap();
-        let package_name_pattern = Regex::new(r#"package\s+(\w+)[.\s\S]+end\s+\1;"#).unwrap();
-        let package: Option<ModelicaPackage> = None;
-        let block_content: Option<String> = None;
-
-        let mut count = 0;
-
-        let captures = package_name_pattern.captures_iter(text_in.as_str());
-        for capture in captures {
-            println!("Found package {}", count);
-            println!("Found package: {}", capture.get(1).unwrap().as_str());
-            count += 1;
-        }
-
-        (package, block_content)
-    }
-}
-
 /// A `type` may only be predefined types, enumerations, array of `type`, or classes extending from `type`
 pub struct ModelicaType {
     pub name: String,
 }
-
-// impl ModelicaClass for ModelicaType {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
 
 /// A `model` is a class that defines a set of variables that are connected to other connectors or to variables outside the model. 
 /// 
@@ -66,62 +32,51 @@ pub struct ModelicaModel {
     pub name: String,
 }
 
-// impl ModelicaClass for ModelicaModel {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
-
 /// A `block` is a class that defines a set of variables that are connected to other connectors or to variables outside the model.
 /// 
 /// A block may also contain equations, algorithm sections, and initial
 /// equations.
+#[derive(Debug)]
 pub struct ModelicaBlock {
     pub name: String,
+    pub content: String,
+    pub connectors: Vec<ModelicaConnector>,
 }
 
-// impl ModelicaClass for ModelicaBlock {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
+impl ModelicaClass for ModelicaBlock {
+    fn extract_class_instances(raw_data: &str) -> Vec<ModelicaBlock> {
+        let mut mbs = vec![];
+        let mut listener = MyListener::new("block".to_string());
+        listener.get_class_contents(raw_data);
+        println!("MB Contents | {:?}", listener);
+        for (name, start, end) in listener.class_contents {
+            println!("MB Contents | {:?}", name);
+            let mb = ModelicaBlock::new(name, raw_data[start as usize..(end + 2) as usize].to_string());
+            mbs.push(mb);
+        }
+        mbs
+    }
+}
+
+impl ModelicaBlock {
+    pub fn new(name: String, content: String,) -> Self {
+        ModelicaBlock {
+            name,
+            content,
+            connectors: Vec::new(),
+        }
+    }
+}
 
 /// A `connector` is a class that defines a set of variables that are connected to other connectors or to
 /// variables outside the model. 
 /// 
 /// A connector may also contain equations, algorithm sections, and initial
 /// equations.
+#[derive(Debug)]
 pub struct ModelicaConnector {
     pub name: String,
-}
-
-// impl ModelicaClass for ModelicaConnector {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
-
-/// A `function` is enhanced to allow the function to contain an external function interface.
-pub struct ModelicaFunction {
-    pub name: String,
-}
-
-// impl ModelicaClass for ModelicaFunction {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
-
-/// A `record` is primarily used to group data together.
-/// 
-/// Only public sections are allowed in the definition or in any of its components 
-/// (i.e., equation, algorithm, initial equation, initial algorithm and protected 
-/// sections are not allowed). The elements of a record shall not have prefixes 
-/// input, output, inner, outer, stream, or flow. Enhanced with implicitly available 
-/// record constructor function, see section 12.6. The components directly declared 
-/// in a record may only be of specialized class record or type.
-pub struct ModelicaRecord {
-    pub name: String,
+    pub r#type: String,
 }
 
 // impl ModelicaClass for ModelicaRecord {

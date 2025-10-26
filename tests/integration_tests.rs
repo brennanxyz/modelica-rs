@@ -54,40 +54,39 @@ fn mod_block() {
     der(x) = u;
     y = x;
   end OtherIntegrator;"#;
-    // let mod_block = ModelicaBlock::new();
-    let blocks = ModelicaBlock::extract_class_instances(input);
-    println!("BLOCKS | {:?}", blocks);
-
-
 }
 
-// #[tokio::test]
+#[tokio::test]
 async fn repo_connection() {
     let client = Client::new();
-    match client.get("https://github.com/modelica/ModelicaStandardLibrary").send().await {
+    match client
+        .get("https://github.com/modelica/ModelicaStandardLibrary")
+        .send()
+        .await
+    {
         Ok(response) => {
             assert_eq!(response.status(), 200);
-        },
+        }
         Err(_) => {
             assert!(false);
         }
     }
 }
 
-// #[test]
+#[test]
 fn env_var_access() {
     dotenv().ok();
     match env::var("GITHUB_TOKEN") {
         Ok(_) => {
             assert!(true);
-        },
+        }
         Err(_) => {
             assert!(false);
         }
     };
 }
 
-// #[tokio::test]
+#[tokio::test]
 async fn raw_repo_connection() {
     dotenv().ok();
     let bearer = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN not set");
@@ -96,22 +95,22 @@ async fn raw_repo_connection() {
         .get("https://api.github.com/repos/modelica/ModelicaStandardLibrary/contents/Modelica")
         .header("User-Agent", "My Rust Program 1.0")
         .header("Authorization", format!("Bearer {}", bearer))
-        .send().await {
+        .send()
+        .await
+    {
         Ok(response) => {
             assert_eq!(response.status(), 200);
-        },
+        }
         Err(_) => {
             assert!(false);
         }
     }
 }
 
-// #[test]
+#[test]
 fn tempdir_make() {
     let tdir = match TempDir::new("modelica-rs") {
-        Ok(tdir) => {
-            tdir
-        },
+        Ok(tdir) => tdir,
         Err(_) => {
             assert!(false);
             return;
@@ -121,19 +120,17 @@ fn tempdir_make() {
     match tdir.close() {
         Ok(_) => {
             assert!(true)
-        },
+        }
         Err(_) => {
             assert!(false)
         }
     }
 }
 
-// #[tokio::test]
+#[tokio::test]
 async fn repo_download() {
     let tdir = match TempDir::new("modelica-rs") {
-        Ok(tdir) => {
-            tdir
-        },
+        Ok(tdir) => tdir,
         Err(_) => {
             assert!(false);
             return;
@@ -152,7 +149,6 @@ async fn repo_download() {
     let m_d = recur_through_repo(url, m_d).await;
 
     println!("{:?}", m_d);
-    
 }
 
 #[async_recursion]
@@ -165,10 +161,10 @@ async fn recur_through_repo(base: &str, mut mod_dir: ModelicaDirectory) -> Model
         .get(format!("{}/{}", base, mod_dir.path))
         .header("User-Agent", "My Rust Program 1.0")
         .header("Authorization", format!("Bearer {}", bearer))
-        .send().await {
-        Ok(response) => {
-            response
-        },
+        .send()
+        .await
+    {
+        Ok(response) => response,
         Err(_) => {
             assert!(false);
             panic!();
@@ -176,9 +172,7 @@ async fn recur_through_repo(base: &str, mut mod_dir: ModelicaDirectory) -> Model
     };
 
     let entries = match response.json::<Vec<ModelicaRepoEntry>>().await {
-        Ok(entries) => {
-            entries
-        },
+        Ok(entries) => entries,
         Err(_) => {
             vec![]
         }
@@ -195,7 +189,9 @@ async fn recur_through_repo(base: &str, mut mod_dir: ModelicaDirectory) -> Model
             if entry.name == "Resources" {
                 continue;
             }
-            mod_dir.directories.push(recur_through_repo(base, n_m_d).await);
+            mod_dir
+                .directories
+                .push(recur_through_repo(base, n_m_d).await);
         } else if entry.r#type == "file" {
             mod_dir.files.push(ModelicaFile {
                 name: entry.path,
@@ -203,5 +199,7 @@ async fn recur_through_repo(base: &str, mut mod_dir: ModelicaDirectory) -> Model
             });
         }
     }
-    return mod_dir
+    return mod_dir;
 }
+
+// TODO: download files and run parsing tests on them

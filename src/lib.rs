@@ -1,12 +1,7 @@
 //! # Wrapping the Modelica language in Rust
-//! 
+//!
 //! This crate is a wrapper for the Modelica language, used primarily for
-//! modeling physical systems. It is build on the ANTLR code parsing framework
-//! via [antlr_rust](https://github.com/rrevenantt/antlr4rust)
-
-pub mod modelica_parser;
-
-use crate::modelica_parser::MyListener;
+//! modeling physical systems.
 
 /// Most declared blocks in Modelica are classes
 pub trait ModelicaClass {
@@ -24,16 +19,28 @@ pub struct ModelicaType {
     pub name: String,
 }
 
-/// A `model` is a class that defines a set of variables that are connected to other connectors or to variables outside the model. 
-/// 
+/// A `model` is a class that defines a set of variables that are connected to other connectors or to variables outside the model.
+///
 /// A model may also contain equations, algorithm sections, and initial
 /// equations.
 pub struct ModelicaModel {
     pub name: String,
+    pub content: String,
+    pub connectors: Vec<ModelicaConnector>,
+}
+
+impl ModelicaModel {
+    pub fn new(name: String, content: String) -> Self {
+        ModelicaModel {
+            name,
+            content,
+            connectors: Vec::new(),
+        }
+    }
 }
 
 /// A `block` is a class that defines a set of variables that are connected to other connectors or to variables outside the model.
-/// 
+///
 /// A block may also contain equations, algorithm sections, and initial
 /// equations.
 #[derive(Debug)]
@@ -43,24 +50,8 @@ pub struct ModelicaBlock {
     pub connectors: Vec<ModelicaConnector>,
 }
 
-#[allow(refining_impl_trait)]
-impl ModelicaClass for ModelicaBlock {
-    fn extract_class_instances(raw_data: &str) -> Vec<ModelicaBlock> {
-        let mut mbs = vec![];
-        let mut listener = MyListener::new("block".to_string());
-        listener.get_class_contents(raw_data);
-        println!("MB Contents | {:?}", listener);
-        for (name, start, end) in listener.class_contents {
-            println!("MB Contents | {:?}", name);
-            let mb = ModelicaBlock::new(name, raw_data[start as usize..(end + 2) as usize].to_string());
-            mbs.push(mb);
-        }
-        mbs
-    }
-}
-
 impl ModelicaBlock {
-    pub fn new(name: String, content: String,) -> Self {
+    pub fn new(name: String, content: String) -> Self {
         ModelicaBlock {
             name,
             content,
@@ -70,8 +61,8 @@ impl ModelicaBlock {
 }
 
 /// A `connector` is a class that defines a set of variables that are connected to other connectors or to
-/// variables outside the model. 
-/// 
+/// variables outside the model.
+///
 /// A connector may also contain equations, algorithm sections, and initial
 /// equations.
 #[derive(Debug)]
@@ -80,48 +71,8 @@ pub struct ModelicaConnector {
     pub r#type: String,
 }
 
-// impl ModelicaClass for ModelicaRecord {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
-
-/// An `operator record` is imilar to `record`; but operator overloading is possible
-pub struct ModelicaOperatorRecord {
-    pub name: String,
-}
-
-// impl ModelicaClass for ModelicaOperatorRecord {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
-
-/// An `operator` is similar to `package``; but may only contain declarations of functions.
-pub struct ModelicaOperatorClass {
-    pub name: String,
-}
-
-// impl ModelicaClass for ModelicaOperatorClass {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
-
-/// An `operator function` is shorthand for an operator with exactly one function
-pub struct ModelicaOperatorFunction {
-    pub name: String,
-}
-
-// impl ModelicaClass for ModelicaOperatorFunction {
-//     fn get_name(&self) -> String {
-//         self.name.clone()
-//     }
-// }
-
-
 /// Content ignored by the Modelica translator
-/// 
+///
 /// Text on a line following the // character pair is ignored by the Modelica translator.
 /// Also, text located between the character pairs /* and */ is ignored by the Modelica translator.
 pub struct ModelicaComment {
@@ -136,22 +87,66 @@ pub enum ModelicaAccessControl {
 /// Reserved Modelica keywords
 #[allow(dead_code)]
 pub enum ModelicaKeyword {
-    Algorithm, And, Annotation,
-    Block, Break,
-    Class, Connect, Connector, Constant, ConstrainedBy,
-    Der, Discrete,
-    Each, Else, ElseIf, ElseWhen, Encapsulated, End, Enumeration, Equation, Expandable, Extends, External,
-    False, Final, Flow, For, Function,
-    If, Import, Impure, In, Initial, Inner, Input,
+    Algorithm,
+    And,
+    Annotation,
+    Block,
+    Break,
+    Class,
+    Connect,
+    Connector,
+    Constant,
+    ConstrainedBy,
+    Der,
+    Discrete,
+    Each,
+    Else,
+    ElseIf,
+    ElseWhen,
+    Encapsulated,
+    End,
+    Enumeration,
+    Equation,
+    Expandable,
+    Extends,
+    External,
+    False,
+    Final,
+    Flow,
+    For,
+    Function,
+    If,
+    Import,
+    Impure,
+    In,
+    Initial,
+    Inner,
+    Input,
     Loop,
     Model,
     Not,
-    Operator, Or, Outer, Output,
-    Package, Parameter, Partial, Protected, Public, Pure,
-    Record, Redeclare, Replaceable, Return,
+    Operator,
+    Or,
+    Outer,
+    Output,
+    Package,
+    Parameter,
+    Partial,
+    Protected,
+    Public,
+    Pure,
+    Record,
+    Redeclare,
+    Replaceable,
+    Return,
     Stream,
-    Time, Then, True, Type,
-    When, While, Within,
+    Time,
+    Then,
+    True,
+    Type,
+    When,
+    While,
+    Within,
 }
 
 /// Reserved Modelica prefixes
@@ -300,6 +295,7 @@ fn get_keyword(keyword: &str) -> Option<ModelicaKeyword> {
 }
 
 /// Reserved Modelica operators
+#[rustfmt::skip]
 pub enum ModelicaOperator {
     PostfixArrayIndex, // [] | arr[index]
     PostfixAccess, // . |  obj.property

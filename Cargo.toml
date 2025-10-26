@@ -1,8 +1,8 @@
 [package]
 name = "modelica-rs"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
-description = "A Rust wrapper for the Modelica standard library. An implementation of rrevenantt's antlr_rust."
+description = "A Rust wrapper for the Modelica standard library."
 authors = ["Brennan Harris <brennan@brennanharris.xyz>"]
 license = "MIT"
 repository = "https://github.com/brennanxyz/modelica-rs"
@@ -10,7 +10,6 @@ repository = "https://github.com/brennanxyz/modelica-rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-antlr-rust = { version =  "0.3.0-beta" }
 serde = { version = "1.0.190", features = ["derive"]}
 regex = { version = "1.10.2" }
 
